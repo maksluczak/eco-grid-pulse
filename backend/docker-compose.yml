@@ -1,0 +1,21 @@
+name: eco-grid-pulse-database
+
+services:
+  db:
+    image: postgres:17
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: eco_db
+      PGDATA: /data/postgres
+    volumes:
+      - db:/data/postgres
+    ports:
+      - "5332:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d eco_db"]
+      interval: 5s
+      retries: 10
+
+volumes:
+  db:
