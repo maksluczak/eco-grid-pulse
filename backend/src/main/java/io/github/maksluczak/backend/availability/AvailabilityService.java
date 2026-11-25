@@ -3,12 +3,16 @@ package io.github.maksluczak.backend.availability;
 import io.github.maksluczak.backend.availability.dto.AvailabilitySlotResponse;
 import io.github.maksluczak.backend.charger.Charger;
 import io.github.maksluczak.backend.charger.ChargerRepository;
+import io.github.maksluczak.backend.exception.ChargerNotFoundException;
+import io.github.maksluczak.backend.reservation.Reservation;
 import io.github.maksluczak.backend.reservation.ReservationRepository;
+import io.github.maksluczak.backend.reservation.ReservationService;
 import io.github.maksluczak.backend.reservation.ReservationStatus;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,42 +31,41 @@ public class AvailabilityService {
 
     public List<AvailabilitySlotResponse> getAvailableSlots(Integer chargerId, LocalDate date) {
         Charger charger = chargerRepository.findById(chargerId)
-                .orElseThrow();
+                .orElseThrow(() -> new ChargerNotFoundException(chargerId));
 
-        List<LocalDateTime> timeSlots = generator.generateSlots(
-                date, charger.getOpenTime(), charger.getCloseTime()
+        LocalDateTime opening = charger.openingOn(date);
+        LocalDateTime closing = charger.closingOn(date);
+
+        List<Reservation> taken = reservationRepository.findInRange(
+                chargerId, opening, closing, ReservationStatus.ACTIVE
         );
 
+        LocalDateTime now = LocalDateTime.now();
         List<AvailabilitySlotResponse> availableSlots = new ArrayList<>();
-        for (LocalDateTime timeSlot : timeSlots) {
-            boolean availableFor15Minutes =
-                    isAvailable(chargerId, timeSlot, timeSlot.plusMinutes(15));
 
-            boolean availableFor30Minutes =
-                    isAvailable(chargerId, timeSlot, timeSlot.plusMinutes(30));
+        for (LocalDateTime slot : generator.generateSlots(opening, closing)) {
+            if (slot.isBefore(now)) {
+                continue;
+            }
 
-            boolean availableFor60Minutes =
-                    isAvailable(chargerId, timeSlot, timeSlot.plusMinutes(60));
-
-            AvailabilitySlotResponse response = AvailabilitySlotResponse.builder()
-                    .startTime(timeSlot)
-                    .availableFor15Minutes(availableFor15Minutes)
-                    .availableFor30Minutes(availableFor30Minutes)
-                    .availableFor60Minutes(availableFor60Minutes)
-                    .build();
-
-            availableSlots.add(response);
+            int maxHours = 0;
+            for (
+                    int hours = ReservationService.MIN_DURATION_HOURS;
+                    hours <= ReservationService.MAX_DURATION_HOURS; hours++
+            ) {
+                LocalDateTime end = slot.plusHours(hours);
+                if (end.isAfter(closing) || overlaps(taken, slot, end)) {
+                    break;
+                }
+                maxHours = hours;
+            }
+            availableSlots.add(new AvailabilitySlotResponse(slot, maxHours));
         }
-
         return availableSlots;
     }
 
-    public boolean isAvailable(Integer chargerId, LocalDateTime startTime, LocalDateTime endTime) {
-        return !reservationRepository.existsOverlappingReservation(
-                chargerId,
-                startTime,
-                endTime,
-                ReservationStatus.ACTIVE
-        );
+    private boolean overlaps(List<Reservation> taken, LocalDateTime start, LocalDateTime end) {
+        return taken.stream()
+                .anyMatch(r -> r.getStartTime().isBefore(end) && r.getEndTime().isAfter(start));
     }
 }

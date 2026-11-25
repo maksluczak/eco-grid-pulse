@@ -17,54 +17,45 @@ import java.util.stream.Collectors;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler({ChargerNotAvailableException.class, ReservationNotFoundException.class})
-    public ResponseEntity<ErrorResponse> handleNotFound(RuntimeException exception) {
-        return build(HttpStatus.NOT_FOUND, exception.getMessage());
+    @ExceptionHandler({ChargerNotFoundException.class, ReservationNotFoundException.class})
+    public ResponseEntity<ErrorResponse> handleNotFound(RuntimeException ex) {
+        return build(HttpStatus.NOT_FOUND, ex.getMessage());
     }
 
     @ExceptionHandler(InvalidReservationTimeException.class)
-    public ResponseEntity<ErrorResponse> handleBadRequest(RuntimeException exception) {
-        return build(HttpStatus.BAD_REQUEST, exception.getMessage());
+    public ResponseEntity<ErrorResponse> handleBadRequest(RuntimeException ex) {
+        return build(HttpStatus.BAD_REQUEST, ex.getMessage());
     }
 
     @ExceptionHandler({
-        ChargerNotAvailableException.class,
-        ReservationCannotBeCanceledException.class,
-        EmailAlreadyTakenException.class
+            ChargerNotAvailableException.class,
+            ReservationCannotBeCancelledException.class,
+            EmailAlreadyTakenException.class
     })
-    public ResponseEntity<ErrorResponse> handleConflict(RuntimeException exception) {
-        return build(HttpStatus.CONFLICT, exception.getMessage());
+    public ResponseEntity<ErrorResponse> handleConflict(RuntimeException ex) {
+        return build(HttpStatus.CONFLICT, ex.getMessage());
     }
 
     @ExceptionHandler(BadCredentialsException.class)
-    public ResponseEntity<ErrorResponse> handleBadCredentials(RuntimeException exception) {
+    public ResponseEntity<ErrorResponse> handleBadCredentials(BadCredentialsException ex) {
         return build(HttpStatus.UNAUTHORIZED, "Invalid email or password");
     }
 
-    @ExceptionHandler({
-        InvalidTokenExpiration.class,
-        JwtException.class,
-        UsernameNotFoundException.class
-    })
-    public ResponseEntity<ErrorResponse> handleUnauthorized(RuntimeException exception) {
-        return build(HttpStatus.UNAUTHORIZED, exception.getMessage());
+    @ExceptionHandler({InvalidTokenException.class, JwtException.class, UsernameNotFoundException.class})
+    public ResponseEntity<ErrorResponse> handleUnauthorized(RuntimeException ex) {
+        return build(HttpStatus.UNAUTHORIZED, ex.getMessage());
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ErrorResponse> handleValidation(MethodArgumentNotValidException exception) {
-        return build(
-                HttpStatus.BAD_REQUEST,
-                exception.getBindingResult().getFieldErrors().stream()
-                        .map(error -> error.getField() + ": " + error.getDefaultMessage())
-                        .collect(Collectors.joining(", "))
-        );
+    public ResponseEntity<ErrorResponse> handleValidation(MethodArgumentNotValidException ex) {
+        String message = ex.getBindingResult().getFieldErrors().stream()
+                .map(error -> error.getField() + ": " + error.getDefaultMessage())
+                .collect(Collectors.joining(", "));
+        return build(HttpStatus.BAD_REQUEST, message);
     }
 
-    @ExceptionHandler({
-        HttpMessageNotReadableException.class,
-        MethodArgumentTypeMismatchException.class
-    })
-    public ResponseEntity<ErrorResponse> handleInvalidRequest(Exception exception) {
+    @ExceptionHandler({HttpMessageNotReadableException.class, MethodArgumentTypeMismatchException.class})
+    public ResponseEntity<ErrorResponse> handleMalformedRequest(Exception ex) {
         return build(HttpStatus.BAD_REQUEST, "Invalid request format");
     }
 

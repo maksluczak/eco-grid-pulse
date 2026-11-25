@@ -4,7 +4,7 @@ import io.github.maksluczak.backend.auth.dto.AuthenticationRequest;
 import io.github.maksluczak.backend.auth.dto.AuthenticationResponse;
 import io.github.maksluczak.backend.auth.dto.RegisterRequest;
 import io.github.maksluczak.backend.exception.EmailAlreadyTakenException;
-import io.github.maksluczak.backend.exception.InvalidTokenExpiration;
+import io.github.maksluczak.backend.exception.InvalidTokenException;
 import io.github.maksluczak.backend.user.User;
 import io.github.maksluczak.backend.user.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
@@ -76,14 +76,14 @@ public class AuthenticationService {
     public AuthenticationResponse refresh(HttpServletRequest request) {
         String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            throw new InvalidTokenExpiration("No token found in Authorization header");
+            throw new InvalidTokenException("No token found in Authorization header");
         }
 
         String token = authHeader.substring(7);
         String email = jwtService.extractEmailForRefresh(token);
 
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new InvalidTokenExpiration("User from token does not exist"));
+                .orElseThrow(() -> new InvalidTokenException("User from token does not exist"));
 
         String newToken = jwtService.generateToken(user);
 

@@ -1,6 +1,7 @@
 package io.github.maksluczak.backend.charger;
 
 import io.github.maksluczak.backend.charger.dto.ChargerResponse;
+import io.github.maksluczak.backend.exception.ChargerNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -30,7 +31,7 @@ public class ChargerService {
     public ChargerResponse getChargersById(Integer id) {
         return chargerRepository.findById(id)
                 .map(this::toResponse)
-                .orElseThrow();
+                .orElseThrow(() -> new ChargerNotFoundException(id));
     }
 
     private ChargerResponse toResponse(Charger charger) {
@@ -39,6 +40,7 @@ public class ChargerService {
                 .orElse(null);
 
         return ChargerResponse.builder()
+                .id(charger.getId())
                 .name(charger.getName())
                 .city(charger.getCity())
                 .address(charger.getAddress())

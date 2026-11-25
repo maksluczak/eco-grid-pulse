@@ -11,7 +11,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 @RestController
-@RequestMapping("api/vi/chargers")
+@RequestMapping("api/v1/chargers")
 public class ChargerController {
 
     private final ChargerService chargerService;

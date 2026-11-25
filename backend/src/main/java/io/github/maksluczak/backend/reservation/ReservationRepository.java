@@ -5,6 +5,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
 
 public interface ReservationRepository extends JpaRepository<Reservation, Integer> {
 
@@ -21,4 +23,23 @@ public interface ReservationRepository extends JpaRepository<Reservation, Intege
             @Param("endTime") LocalDateTime endTime,
             @Param("status") ReservationStatus status
     );
+
+    @Query("""
+        SELECT r FROM Reservation r 
+        WHERE r.charger.id = :chargerId
+        AND r.reservationStatus = :status
+        AND r.startTime < :to
+        AND r.endTime > :from
+        ORDER BY r.startTime
+    """)
+    List<Reservation> findInRange(
+            @Param("chargerId") Integer chargerId,
+            @Param("from") LocalDateTime from,
+            @Param("to") LocalDateTime to,
+            @Param("status") ReservationStatus status
+    );
+
+    List<Reservation> findAllByUserEmailOrderByStartTimeDesc(String email);
+
+    Optional<Reservation> findByIdAndUserEmail(Integer id, String email);
 }

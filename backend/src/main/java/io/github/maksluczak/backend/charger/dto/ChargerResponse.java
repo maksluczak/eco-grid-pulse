@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ChargerResponse {
 
+    private Integer id;
     private String name;
     private String city;
     private String address;

@@ -13,8 +13,7 @@ import lombok.Setter;
 @AllArgsConstructor
 public class AuthenticationRequest {
 
-    @NotBlank
-    @Email
+    @NotBlank @Email
     private String email;
 
     @NotBlank

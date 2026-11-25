@@ -14,7 +14,5 @@ import java.time.LocalDateTime;
 public class AvailabilitySlotResponse {
 
     private LocalDateTime startTime;
-    private boolean availableFor15Minutes;
-    private boolean availableFor30Minutes;
-    private boolean availableFor60Minutes;
+    private Integer maxAvailableHours;
 }

@@ -4,6 +4,8 @@ import io.github.maksluczak.backend.reservation.Reservation;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Set;
 
@@ -37,4 +39,17 @@ public class Charger {
 
     @OneToMany(mappedBy = "charger")
     private Set<Reservation> reservations;
+
+    public LocalDateTime openingOn(LocalDate date) {
+        return openTime != null ? date.atTime(openTime) : date.atStartOfDay();
+    }
+
+    public LocalDateTime closingOn(LocalDate date) {
+        return closeTime != null ? date.atTime(closeTime) : date.plusDays(1).atStartOfDay();
+    }
+
+    public boolean isOpenDuring(LocalDateTime start, LocalDateTime end) {
+        LocalDate day = start.toLocalDate();
+        return !start.isBefore(openingOn(day)) && !end.isAfter(closingOn(day));
+    }
 }
