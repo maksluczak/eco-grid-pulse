@@ -63,7 +63,7 @@ public class AuthenticationService {
                 )
         );
 
-        User user = userRepository.findByEmail(request.getEmail())
+        User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException(email));
 
         String jwtToken = jwtService.generateToken(user);

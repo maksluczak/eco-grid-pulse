@@ -59,6 +59,11 @@ public class GlobalExceptionHandler {
         return build(HttpStatus.BAD_REQUEST, "Invalid request format");
     }
 
+    @ExceptionHandler(EnergyDataUnavailableException.class)
+    public ResponseEntity<ErrorResponse> handleServiceUnavailable(RuntimeException ex) {
+        return build(HttpStatus.SERVICE_UNAVAILABLE, ex.getMessage());
+    }
+
     private ResponseEntity<ErrorResponse> build(HttpStatus status, String message) {
         return ResponseEntity.status(status)
                 .body(new ErrorResponse(status.value(), status.getReasonPhrase(), message, LocalDateTime.now()));
