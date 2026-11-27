@@ -7,7 +7,7 @@ import io.github.maksluczak.backend.reservation.dto.ReservationRequest;
 import io.github.maksluczak.backend.reservation.dto.ReservationResponse;
 import io.github.maksluczak.backend.user.User;
 import io.github.maksluczak.backend.user.UserRepository;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
