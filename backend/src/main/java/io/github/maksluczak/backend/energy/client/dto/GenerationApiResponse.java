@@ -1,4 +1,4 @@
-package io.github.maksluczak.backend.energy.dto.external;
+package io.github.maksluczak.backend.energy.client.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

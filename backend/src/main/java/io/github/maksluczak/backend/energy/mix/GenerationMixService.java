@@ -1,8 +1,9 @@
-package io.github.maksluczak.backend.energy;
+package io.github.maksluczak.backend.energy.mix;
 
-import io.github.maksluczak.backend.energy.dto.GenerationMixDayResponse;
-import io.github.maksluczak.backend.energy.dto.GenerationMixResponse;
-import io.github.maksluczak.backend.energy.dto.external.GenerationPeriod;
+import io.github.maksluczak.backend.energy.client.GenerationApiClient;
+import io.github.maksluczak.backend.energy.mix.dto.GenerationMixDayResponse;
+import io.github.maksluczak.backend.energy.mix.dto.GenerationMixResponse;
+import io.github.maksluczak.backend.energy.client.dto.GenerationPeriod;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -17,10 +18,10 @@ public class GenerationMixService {
     public static final ZoneId UK_ZONE = ZoneId.of("Europe/London");
     private static final int DAYS_COUNT = 3;
 
-    private final GenerationApiService apiService;
+    private final GenerationApiClient apiService;
     private final GenerationMixAggregator aggregator;
 
-    public GenerationMixService(GenerationApiService apiService, GenerationMixAggregator aggregator) {
+    public GenerationMixService(GenerationApiClient apiService, GenerationMixAggregator aggregator) {
         this.apiService = apiService;
         this.aggregator = aggregator;
     }

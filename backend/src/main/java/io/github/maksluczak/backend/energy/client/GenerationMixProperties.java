@@ -1,4 +1,4 @@
-package io.github.maksluczak.backend.energy;
+package io.github.maksluczak.backend.energy.client;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 

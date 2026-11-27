@@ -1,19 +1,28 @@
-package io.github.maksluczak.backend.energy;
+package io.github.maksluczak.backend.energy.mix;
 
-import io.github.maksluczak.backend.energy.dto.FuelShareResponse;
-import io.github.maksluczak.backend.energy.dto.GenerationMixDayResponse;
-import io.github.maksluczak.backend.energy.dto.external.GenerationMixItem;
-import io.github.maksluczak.backend.energy.dto.external.GenerationPeriod;
+import io.github.maksluczak.backend.energy.client.dto.GenerationMixItem;
+import io.github.maksluczak.backend.energy.client.dto.GenerationPeriod;
+import io.github.maksluczak.backend.energy.common.CleanEnergyCalculator;
+import io.github.maksluczak.backend.energy.common.PercentageUtils;
+import io.github.maksluczak.backend.energy.mix.dto.FuelShareResponse;
+import io.github.maksluczak.backend.energy.mix.dto.GenerationMixDayResponse;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 @Component
 public class GenerationMixAggregator {
 
-    private static final Set<String> CLEAN_FUELS = Set.of("biomass", "nuclear", "hydro", "wind", "solar");
+    private final CleanEnergyCalculator cleanEnergyCalculator;
+
+    public GenerationMixAggregator(CleanEnergyCalculator cleanEnergyCalculator) {
+        this.cleanEnergyCalculator = cleanEnergyCalculator;
+    }
 
     public GenerationMixDayResponse aggregateDay(LocalDate date, List<GenerationPeriod> periods) {
         Map<String, Double> sums = new TreeMap<>();
@@ -45,21 +54,21 @@ public class GenerationMixAggregator {
 
         for (Map.Entry<String, Double> entry : sums.entrySet()) {
             double average = entry.getValue() / intervalCount;
-            boolean clean = CLEAN_FUELS.contains(entry.getKey());
+            boolean clean = cleanEnergyCalculator.isClean(entry.getKey());
             if (clean) {
                 cleanEnergy += average;
             }
 
             sources.add(FuelShareResponse.builder()
                     .fuel(entry.getKey())
-                    .percentage(round(average))
+                    .percentage(PercentageUtils.round(average))
                     .clean(clean)
                     .build());
         }
 
         return GenerationMixDayResponse.builder()
                 .date(date)
-                .cleanEnergyPercentage(round(cleanEnergy))
+                .cleanEnergyPercentage(PercentageUtils.round(cleanEnergy))
                 .intervalCount(intervalCount)
                 .sources(sources)
                 .build();
@@ -70,9 +79,5 @@ public class GenerationMixAggregator {
                 .atZoneSameInstant(GenerationMixService.UK_ZONE)
                 .toLocalDate();
         return periodDate.equals(date);
-    }
-
-    private double round(double value) {
-        return Math.round(value * 100.0) / 100.0;
     }
 }

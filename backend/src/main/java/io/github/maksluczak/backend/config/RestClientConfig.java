@@ -1,6 +1,6 @@
 package io.github.maksluczak.backend.config;
 
-import io.github.maksluczak.backend.energy.GenerationMixProperties;
+import io.github.maksluczak.backend.energy.client.GenerationMixProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

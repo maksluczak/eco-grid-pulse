@@ -1,6 +1,6 @@
-package io.github.maksluczak.backend.energy;
+package io.github.maksluczak.backend.energy.mix;
 
-import io.github.maksluczak.backend.energy.dto.GenerationMixResponse;
+import io.github.maksluczak.backend.energy.mix.dto.GenerationMixResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;

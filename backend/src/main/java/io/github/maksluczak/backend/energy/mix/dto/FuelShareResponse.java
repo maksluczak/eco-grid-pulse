@@ -1,4 +1,4 @@
-package io.github.maksluczak.backend.energy.dto;
+package io.github.maksluczak.backend.energy.mix.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

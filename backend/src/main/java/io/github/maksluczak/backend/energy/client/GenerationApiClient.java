@@ -1,6 +1,6 @@
-package io.github.maksluczak.backend.energy;
+package io.github.maksluczak.backend.energy.client;
 
-import io.github.maksluczak.backend.energy.dto.external.GenerationApiResponse;
+import io.github.maksluczak.backend.energy.client.dto.GenerationApiResponse;
 import io.github.maksluczak.backend.exception.EnergyDataUnavailableException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
@@ -11,14 +11,14 @@ import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 
 @Service
-public class GenerationApiService {
+public class GenerationApiClient {
 
     private static final DateTimeFormatter API_DATE_FORMAT =
             DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm'Z'").withZone(ZoneOffset.UTC);
 
     private final RestClient restClient;
 
-    public GenerationApiService(RestClient restClient) {
+    public GenerationApiClient(RestClient restClient) {
         this.restClient = restClient;
     }
 
